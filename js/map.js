@@ -39,6 +39,8 @@ function initializeMaps(map, current_location) {
                 }
                 $.post(api_root_url + '/checkins', checkin_data, function(data) {
                   console.log('success')
+                  alert('Welcome to ' + venue.name);
+                  location.reload();
                 }, "json");
             })
           });
