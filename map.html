@@ -54,7 +54,7 @@
                   // For more options see: https://developers.google.com/maps/documentation/javascript/reference#MapOptions
                   var mapOptions = {
                       // How zoomed in you want the map to start at (always required)
-                      zoom: 18,
+                      zoom: 16,
 
                       // The latitude and longitude to center the map (always required)
                       center: current_location,  // New York
@@ -71,6 +71,7 @@
                   // Create the Google Map using our element and options defined above
                   var map = new google.maps.Map(mapElement, mapOptions);
 
+                  var bounds = new google.maps.LatLngBounds();
 
                   map.addListener('dragend', function(e) {
                     console.log('drag ended');
@@ -81,7 +82,6 @@
                     initializeMaps(map, map.getCenter());
                   });
 
-                  var bounds = new google.maps.LatLngBounds();
 
                   // Let's also add a marker while we're at it
                   var marker = new google.maps.Marker({
@@ -92,16 +92,10 @@
 
                   bounds.extend(current_location);
 
-                  var nearest_venue = initializeMaps(map, current_location);
-                  console.log(nearest_venue);
+                  var nearest_venue = initializeMaps(map, current_location, bounds);
 
                   // TODO: should be nearest venue
-                  //var nearest_venue = new google.maps.LatLng(-34.9174190892, -56.1574675508);
-
-                  console.log('nearest_venue to be used to extend the bounds: ' + nearest_venue);
-                  bounds.extend(nearest_venue);
-
-                  map.fitBounds(bounds);
+                  // var nearest_venue = new google.maps.LatLng(-34.9174190892, -56.1574675508);
                 };
                 getLocation();
             };
