@@ -1,15 +1,27 @@
-function initializeMaps(map, current_location) {
-  var bounds = new google.maps.LatLngBounds();
+var markers = []
+var nearest_venue = null;
 
+function initializeMaps(map, current_location) {
   var api_root_url = 'https://magnet-backend.herokuapp.com/api/v1';
-  var facebook_id = '10206625698734099';
+  //var api_root_url = 'http://localhost:8100/api/v1';
+  var facebook_id = '1122334455667788';
   var latitude = current_location.lat();
   var longitude = current_location.lng();
 
+  deleteMarkers(markers);
+
   $.get(api_root_url + '/venues/near/?facebook_id=' + facebook_id + '&latitude='+ latitude + '&longitude=' + longitude,
     function(venues) {
+
+      nearest_venue = null;
       venues.forEach(function(venue) {
           var radius = 50;
+
+          if ((nearest_venue === null) || (nearest_venue.distance > venue.distance)) {
+            console.log('nearest_venue: ' + nearest_venue);
+            var nearest_venue = venue;
+            console.log('nearest_venue: ' + nearest_venue);
+          };
 
           //var venue_lat = venues[venue].latitude;
           //var venue_lng = venues[venue].longitude;
@@ -20,34 +32,36 @@ function initializeMaps(map, current_location) {
           // console.log('name: ' + venues[venue].name);
           // console.log('checkin counter: ' + venues[venue].checkin_counter);
 
+          var pos = new google.maps.LatLng(venue.latitude, venue.longitude);
+
           generateIcon(venue.checkin_counter, function(src) {
             //console.log(venues[venue].name);
-            var pos = new google.maps.LatLng(venue.latitude, venue.longitude);
-
-            bounds.extend(pos);
-
             marker = new google.maps.Marker({
               position: pos,
               map: map,
               icon: src
             });
+
+            markers.push(marker);
+
             google.maps.event.addListener(marker, 'click', function() {
                 console.log('hey! I\'m at ' + venue.latitude + ',' + venue.longitude);
                 var checkin_data = {
-                  'user': 47,
+                  'user': 58,
                   'venue': venue.id
                 }
                 $.post(api_root_url + '/checkins', checkin_data, function(data) {
                   console.log('success')
                   alert('Welcome to ' + venue.name);
-                  location.reload();
+                  //location.reload();
                 }, "json");
             })
           });
       });
   });
 
-  //map.fitBounds(bounds);
+  var nearest_point = new google.maps.LatLng(nearest_venue.latitude, nearest_venue.longitude);
+  return nearest_point;
 }
 
 var generateIconCache = {};

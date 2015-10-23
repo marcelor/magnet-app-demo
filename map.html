@@ -28,6 +28,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
         <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
 
+        <script src="js/gmap_utils.js"></script>
         <script src="js/map.js"></script>
 
         <script type="text/javascript">
@@ -53,7 +54,7 @@
                   // For more options see: https://developers.google.com/maps/documentation/javascript/reference#MapOptions
                   var mapOptions = {
                       // How zoomed in you want the map to start at (always required)
-                      zoom: 16,
+                      zoom: 18,
 
                       // The latitude and longitude to center the map (always required)
                       center: current_location,  // New York
@@ -70,6 +71,18 @@
                   // Create the Google Map using our element and options defined above
                   var map = new google.maps.Map(mapElement, mapOptions);
 
+
+                  map.addListener('dragend', function(e) {
+                    console.log('drag ended');
+                    initializeMaps(map, map.getCenter());
+                  });
+                  map.addListener('zoom_changed', function(e) {
+                    console.log('zoom changed');
+                    initializeMaps(map, map.getCenter());
+                  });
+
+                  var bounds = new google.maps.LatLngBounds();
+
                   // Let's also add a marker while we're at it
                   var marker = new google.maps.Marker({
                       position: current_location,
@@ -77,7 +90,18 @@
                       title: 'Magnet map'
                   });
 
-                  initializeMaps(map, current_location);
+                  bounds.extend(current_location);
+
+                  var nearest_venue = initializeMaps(map, current_location);
+                  console.log(nearest_venue);
+
+                  // TODO: should be nearest venue
+                  //var nearest_venue = new google.maps.LatLng(-34.9174190892, -56.1574675508);
+
+                  console.log('nearest_venue to be used to extend the bounds: ' + nearest_venue);
+                  bounds.extend(nearest_venue);
+
+                  map.fitBounds(bounds);
                 };
                 getLocation();
             };
